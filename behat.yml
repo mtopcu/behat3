@@ -1,0 +1,23 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext:
+            parameters:
+                 frontend_url: https://store-locator.sonymobile.com/
+
+  extensions:
+    Behat\MinkExtension:
+      base_url: https://store-locator.sonymobile.com
+      browser_name: chrome
+      default_session: default
+      javascript_session: selenium2
+      sessions:
+        default:
+          goutte:
+            guzzle_parameters:
+              verify: false
+        selenium2:
+          selenium2:
+            wd_host: http://127.0.0.1:4444/wd/hub
+            capabilities: {browserVersion:  , version:  }
