@@ -1,46 +1,15 @@
-seleniumhub:
-  image: selenium/hub
+seleniumstandalonechrome:
+  image: selenium/standalone-chrome
   ports:
     - 4444:4444
 
-firefoxnode1:
-  image: selenium/node-firefox
+runner:
+  image: behatdev
+  container_name: feature_runner
   ports:
     - 5900
   links:
-    - seleniumhub:hub
-
-firefoxnode2:
-  image: selenium/node-firefox
-  ports:
-    - 5900
-  links:
-    - seleniumhub:hub
-
-firefoxnode3:
-  image: selenium/node-firefox
-  ports:
-    - 5900
-  links:
-    - seleniumhub:hub
-
-chromenode1:
-  image: selenium/node-chrome
-  ports:
-    - 5900
-  links:
-    - seleniumhub:hub
-
-chromenode2:
-  image: selenium/node-chrome
-  ports:
-    - 5900
-  links:
-    - seleniumhub:hub
-
-chromenode3:
-  image: selenium/node-chrome
-  ports:
-    - 5900
-  links:
-    - seleniumhub:hub 
+    - seleniumstandalonechrome:hub
+  command: ['tail', '-f', '/dev/null']
+  volumes:
+      - /Users/trtopcmu/behat/behat3dev/features:/behat3/features

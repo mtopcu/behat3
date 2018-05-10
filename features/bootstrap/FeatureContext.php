@@ -32,4 +32,15 @@ class FeatureContext extends MinkContext
         $this->assertSession()->pageTextContains($this->fixStepArgument($text));
     }
 
+    /**
+     * @Then I should get redirected to :arg1
+     */
+    public function iShouldGetRedirectedTo($arg1)
+    {
+        $url = $this->getSession()->getCurrentUrl();
+
+        if (strpos($url, $arg1) === false) {
+            throw new Exception('Failure: Invalid redirection');
+        }
+    }
 }
