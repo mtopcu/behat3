@@ -8,7 +8,7 @@ default:
 
   extensions:
     Behat\MinkExtension:
-      base_url: https://store-locator.sonymobile.com
+      base_url: https://store-locator.sonymobile.com/
       browser_name: chrome
       default_session: default
       javascript_session: selenium2

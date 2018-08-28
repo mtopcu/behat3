@@ -6,7 +6,6 @@ Feature: :Basic Behat Test
     Then I must see "Phones"
     Then I should see "Shop"
 
-
   Scenario: Redirection check
     Given I am on "/invalid"
     Then I should get redirected to "www.sonymobile.com"

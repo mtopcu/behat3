@@ -12,8 +12,8 @@
 namespace Symfony\Component\Config\Definition\Builder;
 
 use Symfony\Component\Config\Definition\ArrayNode;
-use Symfony\Component\Config\Definition\PrototypedArrayNode;
 use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
+use Symfony\Component\Config\Definition\PrototypedArrayNode;
 
 /**
  * This class provides a fluent interface for defining an array node.
@@ -39,7 +39,7 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
     /**
      * {@inheritdoc}
      */
-    public function __construct($name, NodeParentInterface $parent = null)
+    public function __construct(?string $name, NodeParentInterface $parent = null)
     {
         parent::__construct($name, $parent);
 
@@ -393,7 +393,7 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
     protected function createNode()
     {
         if (null === $this->prototype) {
-            $node = new ArrayNode($this->name, $this->parent);
+            $node = new ArrayNode($this->name, $this->parent, $this->pathSeparator);
 
             $this->validateConcreteNode($node);
 
@@ -404,7 +404,7 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
                 $node->addChild($child->getNode());
             }
         } else {
-            $node = new PrototypedArrayNode($this->name, $this->parent);
+            $node = new PrototypedArrayNode($this->name, $this->parent, $this->pathSeparator);
 
             $this->validatePrototypeNode($node);
 
@@ -412,11 +412,7 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
                 $node->setKeyAttribute($this->key, $this->removeKeyItem);
             }
 
-            if (false === $this->allowEmptyValue) {
-                @trigger_error(sprintf('Using %s::cannotBeEmpty() at path "%s" has no effect, consider requiresAtLeastOneElement() instead. In 4.0 both methods will behave the same.', __CLASS__, $node->getPath()), E_USER_DEPRECATED);
-            }
-
-            if (true === $this->atLeastOne) {
+            if (true === $this->atLeastOne || false === $this->allowEmptyValue) {
                 $node->setMinNumberOfElements(1);
             }
 
@@ -478,7 +474,7 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
         }
 
         if (false === $this->allowEmptyValue) {
-            @trigger_error(sprintf('->cannotBeEmpty() is not applicable to concrete nodes at path "%s". In 4.0 it will throw an exception.', $path), E_USER_DEPRECATED);
+            throw new InvalidDefinitionException(sprintf('->cannotBeEmpty() is not applicable to concrete nodes at path "%s"', $path));
         }
 
         if (true === $this->atLeastOne) {
@@ -522,17 +518,25 @@ class ArrayNodeDefinition extends NodeDefinition implements ParentNodeDefinition
                 );
             }
 
-            if (null !== $this->key && (null === $this->addDefaultChildren || is_int($this->addDefaultChildren) && $this->addDefaultChildren > 0)) {
+            if (null !== $this->key && (null === $this->addDefaultChildren || \is_int($this->addDefaultChildren) && $this->addDefaultChildren > 0)) {
                 throw new InvalidDefinitionException(
                     sprintf('->addDefaultChildrenIfNoneSet() should set default children names as ->useAttributeAsKey() is used at path "%s"', $path)
                 );
             }
 
-            if (null === $this->key && (is_string($this->addDefaultChildren) || is_array($this->addDefaultChildren))) {
+            if (null === $this->key && (\is_string($this->addDefaultChildren) || \is_array($this->addDefaultChildren))) {
                 throw new InvalidDefinitionException(
                     sprintf('->addDefaultChildrenIfNoneSet() might not set default children names as ->useAttributeAsKey() is not used at path "%s"', $path)
                 );
             }
         }
+    }
+
+    /**
+     * @return NodeDefinition[]
+     */
+    public function getChildNodeDefinitions()
+    {
+        return $this->children;
     }
 }
