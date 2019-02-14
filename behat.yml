@@ -5,6 +5,9 @@ default:
         - FeatureContext:
             parameters:
                  frontend_url: https://store-locator.sonymobile.com/
+        - cURLContext:
+            parameters:
+                 frontend_url: https://store-locator.sonymobile.com/
 
   extensions:
     Behat\MinkExtension:

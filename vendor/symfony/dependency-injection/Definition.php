@@ -28,12 +28,12 @@ class Definition
     private $shared = true;
     private $deprecated = false;
     private $deprecationTemplate;
-    private $properties = array();
-    private $calls = array();
-    private $instanceof = array();
+    private $properties = [];
+    private $calls = [];
+    private $instanceof = [];
     private $autoconfigured = false;
     private $configurator;
-    private $tags = array();
+    private $tags = [];
     private $public = true;
     private $private = true;
     private $synthetic = false;
@@ -41,11 +41,11 @@ class Definition
     private $lazy = false;
     private $decoratedService;
     private $autowired = false;
-    private $changes = array();
-    private $bindings = array();
-    private $errors = array();
+    private $changes = [];
+    private $bindings = [];
+    private $errors = [];
 
-    protected $arguments = array();
+    protected $arguments = [];
 
     private static $defaultDeprecationTemplate = 'The "%service_id%" service is deprecated. You should stop using it, as it will soon be removed.';
 
@@ -60,7 +60,7 @@ class Definition
      * @param string|null $class     The service class
      * @param array       $arguments An array of arguments to pass to the service constructor
      */
-    public function __construct($class = null, array $arguments = array())
+    public function __construct($class = null, array $arguments = [])
     {
         if (null !== $class) {
             $this->setClass($class);
@@ -115,7 +115,7 @@ class Definition
     /**
      * Gets the factory.
      *
-     * @return string|array The PHP function or an array containing a class/Reference and a method to call
+     * @return string|array|null The PHP function or an array containing a class/Reference and a method to call
      */
     public function getFactory()
     {
@@ -125,8 +125,8 @@ class Definition
     /**
      * Sets the service that this service is decorating.
      *
-     * @param null|string $id        The decorated service id, use null to remove decoration
-     * @param null|string $renamedId The new decorated service id
+     * @param string|null $id        The decorated service id, use null to remove decoration
+     * @param string|null $renamedId The new decorated service id
      * @param int         $priority  The priority of decoration
      *
      * @return $this
@@ -144,7 +144,7 @@ class Definition
         if (null === $id) {
             $this->decoratedService = null;
         } else {
-            $this->decoratedService = array($id, $renamedId, (int) $priority);
+            $this->decoratedService = [$id, $renamedId, (int) $priority];
         }
 
         return $this;
@@ -153,7 +153,7 @@ class Definition
     /**
      * Gets the service that this service is decorating.
      *
-     * @return null|array An array composed of the decorated service id, the new id for it and the priority of decoration, null if no service is decorated
+     * @return array|null An array composed of the decorated service id, the new id for it and the priority of decoration, null if no service is decorated
      */
     public function getDecoratedService()
     {
@@ -326,9 +326,9 @@ class Definition
      *
      * @return $this
      */
-    public function setMethodCalls(array $calls = array())
+    public function setMethodCalls(array $calls = [])
     {
-        $this->calls = array();
+        $this->calls = [];
         foreach ($calls as $call) {
             $this->addMethodCall($call[0], $call[1]);
         }
@@ -346,12 +346,12 @@ class Definition
      *
      * @throws InvalidArgumentException on empty $method param
      */
-    public function addMethodCall($method, array $arguments = array())
+    public function addMethodCall($method, array $arguments = [])
     {
         if (empty($method)) {
             throw new InvalidArgumentException('Method name cannot be empty.');
         }
-        $this->calls[] = array($method, $arguments);
+        $this->calls[] = [$method, $arguments];
 
         return $this;
     }
@@ -406,7 +406,7 @@ class Definition
     /**
      * Sets the definition templates to conditionally apply on the current definition, keyed by parent interface/class.
      *
-     * @param $instanceof ChildDefinition[]
+     * @param ChildDefinition[] $instanceof
      *
      * @return $this
      */
@@ -482,7 +482,7 @@ class Definition
      */
     public function getTag($name)
     {
-        return isset($this->tags[$name]) ? $this->tags[$name] : array();
+        return isset($this->tags[$name]) ? $this->tags[$name] : [];
     }
 
     /**
@@ -493,7 +493,7 @@ class Definition
      *
      * @return $this
      */
-    public function addTag($name, array $attributes = array())
+    public function addTag($name, array $attributes = [])
     {
         $this->tags[$name][] = $attributes;
 
@@ -533,7 +533,7 @@ class Definition
      */
     public function clearTags()
     {
-        $this->tags = array();
+        $this->tags = [];
 
         return $this;
     }
@@ -859,6 +859,10 @@ class Definition
     public function setBindings(array $bindings)
     {
         foreach ($bindings as $key => $binding) {
+            if (0 < strpos($key, '$') && $key !== $k = preg_replace('/[ \t]*\$/', ' $', $key)) {
+                unset($bindings[$key]);
+                $bindings[$key = $k] = $binding;
+            }
             if (!$binding instanceof BoundArgument) {
                 $bindings[$key] = new BoundArgument($binding);
             }
