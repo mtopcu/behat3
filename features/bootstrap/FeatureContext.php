@@ -40,8 +40,6 @@ class FeatureContext extends MinkContext
     {
         $url = $this->getSession()->getCurrentUrl();
 
-        if (strpos($url, $arg1) === false) {
-            throw new Exception('Failure: Invalid redirection');
-        }
+      PHPUnit::assertSame($arg1,$url, "False redirection! Should redirect to'$arg1'");
     }
 }
